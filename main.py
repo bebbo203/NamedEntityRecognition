@@ -155,9 +155,9 @@ devset.index_dataset(vocabulary, label_vocabulary)
 testset.index_dataset(vocabulary, label_vocabulary)
 
 print("Initializing the DataLoaders")
-train_dataset = DataLoader(trainingset, batch_size=128)
-valid_dataset = DataLoader(devset, batch_size=128)
-test_dataset = DataLoader(testset, batch_size=128)
+train_dataset = DataLoader(trainingset, batch_size=512)
+valid_dataset = DataLoader(devset, batch_size=512)
+test_dataset = DataLoader(testset, batch_size=512)
 
 
 print("Loading the model")

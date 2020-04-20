@@ -9,9 +9,12 @@ from .params import Params
 
 class NERModel(nn.Module):
     # we provide the hyperparameters as input
-    def __init__(self, vocab_size, num_classes, params):
+    def __init__(self, vocab_size, num_classes, alphabet_size, params):
         super(NERModel, self).__init__()
         
+       
+
+
         self.word_embedding = nn.Embedding(vocab_size, params.embedding_dim)
         
 
@@ -26,10 +29,8 @@ class NERModel(nn.Module):
         self.classifier = nn.Linear(lstm_output_dim, num_classes)
 
     
-    def forward(self, x):
-        embeddings = self.word_embedding(x)
-        embeddings = self.dropout(embeddings)
-        o, (h, c) = self.lstm(embeddings)
+    def forward(self, x, chars):
+        o, (h, c) = self.lstm(words_chars_embeddings.view(len(words_chars_embeddings), 1, 50))
         o = self.dropout(o)
         output = self.classifier(o)
         return output
