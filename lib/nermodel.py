@@ -9,7 +9,7 @@ from .params import Params
 
 class NERModel(nn.Module):
     # we provide the hyperparameters as input
-    def __init__(self, vocab_size, num_classes, alphabet_size, params):
+    def __init__(self, vocab_size, num_classes, params):
         super(NERModel, self).__init__()
         
        
