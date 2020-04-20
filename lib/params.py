@@ -1,8 +1,8 @@
 class Params():
     hidden_dim = 64
     embedding_dim = 50
-    bidirectional = False
-    num_layers = 3
+    bidirectional = True
+    num_layers = 4
     dropout = 0.5
     embeddings_processed_weights = 'model/embeddings_weights.json'
     embeddings_path = 'model/glove.6B.50d.txt'
