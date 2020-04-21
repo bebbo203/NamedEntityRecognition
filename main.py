@@ -73,15 +73,15 @@ def compute_precision(model:nn.Module, l_dataset:DataLoader, l_label_vocab):
             "conf":conf}
 
 
-
+'''
 training_file = "data/train.tsv"
 test_file = "data/test.tsv"
 dev_file = "data/dev.tsv"
 '''
-training_file = "data/little.tsv"
-test_file = "data/little.tsv"
-dev_file = "data/little.tsv"
-'''
+training_file = "data/little_train.tsv"
+test_file = "data/little_test.tsv"
+dev_file = "data/little_dev.tsv"
+
 params = Params()
 window_size = params.window_size
 window_shift = params.window_shift
@@ -159,10 +159,12 @@ trainingset.index_dataset(vocabulary, label_vocabulary)
 devset.index_dataset(vocabulary, label_vocabulary)
 testset.index_dataset(vocabulary, label_vocabulary)
 
+
+
 print("Initializing the DataLoaders")
-train_dataset = DataLoader(trainingset, batch_size=512)
-valid_dataset = DataLoader(devset, batch_size=512)
-test_dataset = DataLoader(testset, batch_size=512)
+train_dataset = DataLoader(trainingset, batch_size=128)
+valid_dataset = DataLoader(devset, batch_size=128)
+test_dataset = DataLoader(testset, batch_size=128)
 
 
 print("Loading the model")
@@ -183,7 +185,7 @@ trainer = Trainer(
     label_vocab=label_vocabulary
 )
 
-trainer.train(train_dataset, valid_dataset, 50)
+trainer.train(train_dataset, valid_dataset, 20)
 torch.save(nermodel.state_dict(), "model/weights.pt")
 with open(params.embeddings_processed_weights, 'w') as outfile:
         json.dump(nermodel.word_embedding.weight.tolist(), outfile)
