@@ -60,6 +60,8 @@ class NERDataset(Dataset):
             # for each window
             elem = self.data[i]
             encoded_elem = torch.LongTensor(self.encode_text(elem, l_vocabulary)).to(self.device)
+            
+            prova
             # for each element d in the elem window (d is a dictionary with the various fields from the CoNLL line) 
             encoded_labels = torch.LongTensor([l_label_vocabulary[d["lemma"]] if d is not None 
                               else l_label_vocabulary["<pad>"] for d in elem]).to(self.device)
