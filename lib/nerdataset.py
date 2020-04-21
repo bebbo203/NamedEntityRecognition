@@ -11,7 +11,7 @@ from .vocabulary import Vocabulary
 
 class NERDataset(Dataset):
 
-    def __init__(self, input_file, window_size, window_shift, device):
+    def __init__(self, input_file, window_size, window_shift, max_word_length, device):
         self.input_file = input_file
         self.sentences = None
         self.lowercase = False
@@ -23,6 +23,7 @@ class NERDataset(Dataset):
         self.data = self.create_windows(sentences)
         self.encoded_data = None
         self.alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 -,;.!?:’’’/\|_@#$%ˆ&*˜‘+-=()[]{}"
+        self.max_word_length = max_word_length
     
     def __len__(self):
         return len(self.data)
@@ -61,7 +62,7 @@ class NERDataset(Dataset):
             # for each window
             elem = self.data[i]
             
-            encoded_elem_chars = self.encode_chars(elem, self.alphabet)
+            encoded_elem_chars = self.encode_chars(elem, self.alphabet, self.max_word_length)
             encoded_elem_words = torch.LongTensor(self.encode_text(elem, l_vocabulary)).to(self.device)
             
             
@@ -84,9 +85,8 @@ class NERDataset(Dataset):
     
    
     @staticmethod
-    def encode_chars(sentence, alphabet):
+    def encode_chars(sentence, alphabet, word_length):
         window_idx = []
-        word_length = 20
         for w in sentence:
             word_idx = []
             if(w is not None and len(w["form"]) <= word_length):

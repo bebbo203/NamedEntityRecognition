@@ -12,17 +12,25 @@ class NERModel(nn.Module):
     def __init__(self, vocab_size, num_classes, params):
         super(NERModel, self).__init__()
         
+        self.params = params
 
-        self.char= nn.Conv1d(in_channels=params.window_size, out_channels=params.window_size, stride=1, kernel_size=2)
-        self.maxpool = nn.MaxPool1d(3)
 
+        #Da passare a LSTM
+        #self.char_conv = nn.Conv1d(in_channels=params.window_size, out_channels=params.window_size, stride=1, kernel_size=3)
+        
+        self.char_lstm = nn.LSTM(params.max_word_lenght - 1, params.char_embedding_dim // 2, 
+                            bidirectional=params.bidirectional,
+                            num_layers=params.num_layers, 
+                            dropout = params.dropout if params.num_layers > 1 else 0)
+        
+        
 
 
         self.word_embedding = nn.Embedding(vocab_size, params.embedding_dim)
         
 
 
-        self.lstm = nn.LSTM(56, params.hidden_dim, 
+        self.lstm = nn.LSTM(params.embedding_dim + params.char_embedding_dim, params.hidden_dim, 
                             bidirectional=params.bidirectional,
                             num_layers=params.num_layers, 
                             dropout = params.dropout if params.num_layers > 1 else 0)
@@ -36,21 +44,21 @@ class NERModel(nn.Module):
     def forward(self, x):
 
         
-        word = x[:, :, -1].type(torch.LongTensor).to("cuda")
+        word = x[:, :, -1].type(torch.LongTensor).to(self.params.device)
         chars = x[:, :, :-2]
-            
-        
 
-        char = self.maxpool(self.char(chars))
         
-
+        o, (h, c) = self.char_lstm(chars)
+        o = self.dropout(o)
+        char_embedding = o
+        
+        
         embeddings = self.word_embedding(word)
         embeddings = self.dropout(embeddings)
         
-     
 
-        final_emb = torch.cat((embeddings, char), dim=2)
-        
+        final_emb = torch.cat((embeddings, char_embedding), dim=2)
+
         o, (h, c) = self.lstm(final_emb)
         o = self.dropout(o)
         output = self.classifier(o)

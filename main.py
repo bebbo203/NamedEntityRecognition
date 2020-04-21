@@ -88,9 +88,9 @@ window_size = params.window_size
 window_shift = params.window_shift
 device = params.device
 
-trainingset = NERDataset(training_file, window_size, window_shift, device=device)
-devset = NERDataset(dev_file, window_size, window_shift, device=device)
-testset = NERDataset(test_file, window_size, window_shift, device=device)
+trainingset = NERDataset(training_file, window_size, window_shift, params.max_word_lenght, device=device)
+devset = NERDataset(dev_file, window_size, window_shift, params.max_word_lenght, device=device)
+testset = NERDataset(test_file, window_size, window_shift, params.max_word_lenght, device=device)
 
 
 
