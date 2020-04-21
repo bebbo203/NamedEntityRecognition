@@ -9,7 +9,7 @@ class Params():
     
     device = "cuda"
     window_size = 50
-    window_shift = 10
+    window_shift = 25
     min_freq = 5
     max_freq = 0
     vocabulary_path = 'model/vocabulary.json'
