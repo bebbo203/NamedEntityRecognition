@@ -22,7 +22,7 @@ class NERModel(nn.Module):
         
 
 
-        self.lstm = nn.LSTM(50, params.hidden_dim, 
+        self.lstm = nn.LSTM(56, params.hidden_dim, 
                             bidirectional=params.bidirectional,
                             num_layers=params.num_layers, 
                             dropout = params.dropout if params.num_layers > 1 else 0)
@@ -36,24 +36,22 @@ class NERModel(nn.Module):
     def forward(self, x):
 
         
-       # word = x[:, :, -1].type(torch.LongTensor).to("cuda")
-       # chars = x[:, :, :-2]
+        word = x[:, :, -1].type(torch.LongTensor).to("cuda")
+        chars = x[:, :, :-2]
             
         
 
-        #char = self.maxpool(self.char(chars))
+        char = self.maxpool(self.char(chars))
         
-        
-       
 
-        embeddings = self.word_embedding(x)
+        embeddings = self.word_embedding(word)
         embeddings = self.dropout(embeddings)
         
      
 
-        #final_emb = torch.cat((embeddings, char), dim=2)
+        final_emb = torch.cat((embeddings, char), dim=2)
         
-        o, (h, c) = self.lstm(embeddings)
+        o, (h, c) = self.lstm(final_emb)
         o = self.dropout(o)
         output = self.classifier(o)
         return output

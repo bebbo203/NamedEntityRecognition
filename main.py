@@ -186,7 +186,7 @@ trainer = Trainer(
     label_vocab=label_vocabulary
 )
 
-trainer.train(train_dataset, valid_dataset, 20)
+trainer.train(train_dataset, valid_dataset, 60)
 torch.save(nermodel.state_dict(), "model/weights.pt")
 with open(params.embeddings_processed_weights, 'w') as outfile:
         json.dump(nermodel.word_embedding.weight.tolist(), outfile)
