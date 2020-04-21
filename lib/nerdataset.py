@@ -96,7 +96,7 @@ class NERDataset(Dataset):
                 word_idx.append(1)
             
             #Every word is padded
-            word_length = 30
+            word_length = 45
             while(len(word_idx) < word_length + 1):
                 word_idx.append(1)
 
