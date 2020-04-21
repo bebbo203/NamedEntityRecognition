@@ -73,7 +73,7 @@ def compute_precision(model:nn.Module, l_dataset:DataLoader, l_label_vocab):
             "conf":conf}
 
 
-'''
+
 training_file = "data/train.tsv"
 test_file = "data/test.tsv"
 dev_file = "data/dev.tsv"
@@ -81,7 +81,7 @@ dev_file = "data/dev.tsv"
 training_file = "data/little_train.tsv"
 test_file = "data/little_test.tsv"
 dev_file = "data/little_dev.tsv"
-
+'''
 params = Params()
 window_size = params.window_size
 window_shift = params.window_shift
@@ -162,9 +162,9 @@ testset.index_dataset(vocabulary, label_vocabulary)
 
 
 print("Initializing the DataLoaders")
-train_dataset = DataLoader(trainingset, batch_size=128)
-valid_dataset = DataLoader(devset, batch_size=128)
-test_dataset = DataLoader(testset, batch_size=128)
+train_dataset = DataLoader(trainingset, batch_size=256)
+valid_dataset = DataLoader(devset, batch_size=256)
+test_dataset = DataLoader(testset, batch_size=256)
 
 
 print("Loading the model")

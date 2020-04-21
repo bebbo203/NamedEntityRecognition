@@ -37,9 +37,6 @@ class NERModel(nn.Module):
 
         
         word = x[:, :, -1].type(torch.LongTensor).to("cuda")
-        
-
-
         chars = x[:, :, :-2]
             
         

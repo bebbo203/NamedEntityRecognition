@@ -70,7 +70,7 @@ class NERDataset(Dataset):
             for x in zip(encoded_elem_chars, encoded_elem):
                 x[0][-1] = x[1]
             
-            
+            encoded_elem_chars.requires_grad = False
 
             # for each element d in the elem window (d is a dictionary with the various fields from the CoNLL line) 
             encoded_labels = torch.LongTensor([l_label_vocabulary[d["lemma"]] if d is not None 
