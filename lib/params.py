@@ -8,8 +8,8 @@ class Params():
     embeddings_path = 'model/glove.6B.50d.txt'
     
     device = "cuda"
-    window_size = 10
-    window_shift = 1
+    window_size = 100
+    window_shift =  100
     min_freq = 0
     max_freq = 0
     vocabulary_path = 'model/vocabulary.json'

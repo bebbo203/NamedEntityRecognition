@@ -61,22 +61,23 @@ class NERDataset(Dataset):
             # for each window
             elem = self.data[i]
             
-            encoded_elem_chars = self.encode_chars(elem, self.alphabet)
-            encoded_elem = torch.LongTensor(self.encode_text(elem, l_vocabulary))
+            #encoded_elem_chars = self.encode_chars(elem, self.alphabet)
+            encoded_elem_words = torch.LongTensor(self.encode_text(elem, l_vocabulary)).to(self.device)
             
             
 
             #MMMMHHHHHH
-            for x in zip(encoded_elem_chars, encoded_elem):
-                x[0][-1] = x[1]
+            #for x in zip(encoded_elem_chars, encoded_elem_words):
+            #    x[0][-1] = x[1]
             
-            encoded_elem_chars.requires_grad = False
+            #encoded_elem_chars.requires_grad = False
 
             # for each element d in the elem window (d is a dictionary with the various fields from the CoNLL line) 
             encoded_labels = torch.LongTensor([l_label_vocabulary[d["lemma"]] if d is not None 
                               else l_label_vocabulary["<pad>"] for d in elem]).to(self.device)
             
-            self.encoded_data.append({"inputs":encoded_elem_chars.to(self.device), 
+            self.encoded_data.append({#"inputs":encoded_elem_chars.to(self.device), 
+                                      "inputs":encoded_elem_words,
                                       "outputs":encoded_labels})
             progress_bar.update(1)
         progress_bar.close()
@@ -85,9 +86,10 @@ class NERDataset(Dataset):
     @staticmethod
     def encode_chars(sentence, alphabet):
         window_idx = []
+        word_length = 20
         for w in sentence:
             word_idx = []
-            if(w is not None):
+            if(w is not None and len(w["form"]) <= word_length):
                 word = w["form"]
                 for c in word:
                     #0 is NotFound, 1 is padding
@@ -96,7 +98,7 @@ class NERDataset(Dataset):
                 word_idx.append(1)
             
             #Every word is padded
-            word_length = 45
+            
             while(len(word_idx) < word_length + 1):
                 word_idx.append(1)
 

@@ -82,6 +82,7 @@ training_file = "data/little_train.tsv"
 test_file = "data/little_test.tsv"
 dev_file = "data/little_dev.tsv"
 '''
+
 params = Params()
 window_size = params.window_size
 window_shift = params.window_shift
