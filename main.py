@@ -73,7 +73,7 @@ def compute_precision(model:nn.Module, l_dataset:DataLoader, l_label_vocab):
             "conf":conf}
 
 
-'''
+
 training_file = "data/train.tsv"
 test_file = "data/test.tsv"
 dev_file = "data/dev.tsv"
@@ -81,7 +81,7 @@ dev_file = "data/dev.tsv"
 training_file = "data/little_train.tsv"
 test_file = "data/little_test.tsv"
 dev_file = "data/little_dev.tsv"
-
+'''
 
 params = Params()
 window_size = params.window_size
