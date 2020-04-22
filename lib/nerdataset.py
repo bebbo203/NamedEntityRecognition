@@ -89,7 +89,7 @@ class NERDataset(Dataset):
         window_idx = []
         for w in sentence:
             word_idx = []
-            if(w is not None and len(w["form"]) <= word_length):
+            if(w is not None and len(w["form"]) <= word_length - 1):
                 word = w["form"]
                 for c in word:
                     #0 is NotFound, 1 is padding
@@ -99,7 +99,7 @@ class NERDataset(Dataset):
             
             #Every word is padded
             
-            while(len(word_idx) < word_length + 1):
+            while(len(word_idx) < (word_length - 1)):
                 word_idx.append(1)
 
             window_idx.append(torch.FloatTensor(word_idx))
