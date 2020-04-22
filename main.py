@@ -173,7 +173,9 @@ nermodel = NERModel(len(vocabulary), len(label_vocabulary), params)
 if(params.embeddings_path != None):
     nermodel.word_embedding.weight.data.copy_(torch.Tensor(embeddings_weights))
 
-
+if(os.path.exists("model/inter_weights.pt")):
+    nermodel.load_state_dict(torch.load("model/inter_weights.pt"))
+    print("Weights loaded successfully!")
 
 #Send the model to the right device
 nermodel.to(torch.device(params.device))
