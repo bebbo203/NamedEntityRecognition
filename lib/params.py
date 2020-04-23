@@ -2,14 +2,14 @@ class Params():
     hidden_dim = 256
     embedding_dim = 50
     char_embedding_dim = 10
-    single_char_embedding_dim = 4
+    single_char_embedding_dim = 6
     alphabet_size = 107
     bidirectional = True
     num_layers = 2
     dropout = 0.3
     embeddings_processed_weights = 'model/embeddings_weights.json'
     embeddings_path = 'model/glove.6B.50d.txt'
-    max_word_lenght = 20
+    max_word_lenght = 15
     device = "cuda"
     window_size = 5
     window_shift =  1
