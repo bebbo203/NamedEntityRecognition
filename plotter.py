@@ -35,7 +35,7 @@ axs[0].plot(epoch, train_loss, label="train_loss")
 axs[0].plot(epoch, val_loss, label="val_loss")
 
 axs[0].legend()
-plt.show()
+
 
 if(not only_loss):
     axs[1].plot(epoch, microprec, label="microprecision")
@@ -43,4 +43,6 @@ if(not only_loss):
     axs[1].plot(epoch, recall, label="recall")
     axs[1].plot(epoch, f1, label="f1-score")
     axs[1].legend()
-    plt.show()
+
+
+plt.show()
