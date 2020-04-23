@@ -9,11 +9,11 @@ class Params():
     dropout = 0.3
     embeddings_processed_weights = 'model/embeddings_weights.json'
     embeddings_path = 'model/glove.6B.50d.txt'
-    max_word_lenght = 16
+    max_word_lenght = 11
     device = "cuda"
     window_size = 30
     window_shift =  30
-    min_freq = 0
+    min_freq = 2
     max_freq = 0
     vocabulary_path = 'model/vocabulary.json'
     label_vocabulary_path = 'model/label_vocabulary.json'
