@@ -29,9 +29,6 @@ class StudentModel():
             data = json.load(json_file)
             self.label_vocabulary = Vocabulary(load_vocabulary = data["dict"], unknown=data["unknown"], padding=data["padding"])
        
-            
-        
-        
         self.model = NERModel(len(self.vocabulary), len(self.label_vocabulary), self.params)
        
     @staticmethod
@@ -120,7 +117,7 @@ def flat_list(l):
 
 a = StudentModel()
 a.model.to('cuda')
-#a.model.load_state_dict(torch.load("model/inter_weights.pt"))
+a.model.load_state_dict(torch.load("model/inter_weights.pt"))
 
 f = open("data/little_dev.tsv")
 pad_idx = a.label_vocabulary["<pad>"]

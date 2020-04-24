@@ -9,11 +9,14 @@ from .params import Params
 
 class NERModel(nn.Module):
     # we provide the hyperparameters as input
-    def __init__(self, vocab_size, num_classes, params):
+    def __init__(self, vocab_size, num_classes, params, device = None):
         super(NERModel, self).__init__()
         
         self.params = params
-
+        if(device == None):
+            self.device = params.device
+        else:
+            self.device = device
 
         #Da passare a LSTM
         #self.char_conv = nn.Conv1d(in_channels=params.window_size, out_channels=params.window_size, stride=1, kernel_size=3)
@@ -47,15 +50,15 @@ class NERModel(nn.Module):
     def forward(self, x):
 
         
-        word = x[:, :, -1].type(torch.LongTensor).to(self.params.device)
-        chars = x[:, :, :-2].type(torch.LongTensor).to(self.params.device)
+        word = x[:, :, -1].type(torch.LongTensor).to(self.device)
+        chars = x[:, :, :-2].type(torch.LongTensor).to(self.device)
 
         #u = (batch_size, window_size, word_size - 1, single_char_embedding_dim)
         u = self.char_embedder(chars)
        
 
     
-        char_embedding = torch.Tensor().to(self.params.device)
+        char_embedding = torch.Tensor().to(self.device)
         
         for i in range(self.params.window_size):
             # Need to change dimensions since the lstm level needs the input as (n_timesteps, batch, n_features)
