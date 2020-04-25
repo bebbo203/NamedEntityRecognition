@@ -2,7 +2,7 @@ class Params():
     hidden_dim = 64
     embedding_dim = 50
     char_embedding_dim = 10
-    single_char_embedding_dim = 4
+    single_char_embedding_dim = 3
     alphabet_size = 107
     bidirectional = True
     num_layers = 2
