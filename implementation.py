@@ -13,8 +13,7 @@ import json
 
 def build_model(device: str) -> Model:
     return StudentModel(device)
-    # STUDENT: your model MUST be loaded on the device "device" indicates
-    #return RandomBaseline()
+   
 
 
 class RandomBaseline(Model):
@@ -47,11 +46,12 @@ class StudentModel(Model):
         with open('model/label_vocabulary.json') as json_file:
             data = json.load(json_file)
             self.label_vocabulary = Vocabulary(load_vocabulary = data["dict"], unknown=data["unknown"], padding=data["padding"])
-    
+        self.alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 -,;.!?:’’’/\|_@#$%ˆ&*˜‘+-=()[]{}"
 
         self.model = NERModel(len(self.vocabulary), len(self.label_vocabulary), self.params, device = device).to(torch.device(self.device))
         self.model.load_state_dict(torch.load("model/inter_weights.pt", map_location=torch.device(self.device)))
        
+
     @staticmethod
     def encode_text(sentence:list, 
                 l_vocabulary):
@@ -67,9 +67,9 @@ class StudentModel(Model):
         return indices
     
     @staticmethod
-    def encode_chars(sentence, alphabet):
+    def encode_chars(sentence, alphabet, word_length):
         window_idx = []
-        word_length = 20
+        
         for w in sentence:
             word_idx = []
             if(w is not None and len(w) <= word_length):
@@ -89,12 +89,14 @@ class StudentModel(Model):
         #Is a Tensor that contains a list of lists of words padded
         return window_idx
 
-    def create_windows(self, sentence):
-        data = []     
-        for i in range(0, len(sentence), self.params.window_shift):
+    def create_windows_multi(self, sentences):
+        data = []
+        for sentence in sentences:
+            # Occhio qui perché quando sono in eval non ho bisogno della finestra che si sovrappone mi sa
+          for i in range(0, len(sentence), self.params.window_size):
             window = sentence[i:i+self.params.window_size]
             if len(window) < self.params.window_size:
-                window = window + [None]*(self.params.window_size - len(window))
+              window = window + [None]*(self.params.window_size - len(window))
             assert len(window) == self.params.window_size
             data.append(window)
         return data
@@ -103,29 +105,48 @@ class StudentModel(Model):
     def predict(self, tokens: List[List[str]]) -> List[List[str]]:
         # STUDENT: implement here your predict function
         # remember to respect the same order of tokens!
-        self.model.eval()
-        alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 -,;.!?:’’’/\|_@#$%ˆ&*˜‘+-=()[]{}"
-
-
         with torch.no_grad():
             ret = []
+            list_of_length = []
+            data = []
             for sentence in tokens:
+                list_of_length.append(len(sentence))
+            
+            data = self.create_windows_multi(tokens)
+
+            
+           
+            final = []
+            for i in range(len(data)):
+                # for each window
+                elem = data[i]
                 
-                sentence_length = len(sentence)
-                sentence_pred = []
-                data = self.create_windows(sentence)
-                
-                for windows in data:
-                    encoded_elem_chars = self.encode_chars(windows, alphabet)
-                    encoded_elem_words = torch.LongTensor(self.encode_text(windows, self.vocabulary)).to(self.device)
-                    for x in zip(encoded_elem_chars, encoded_elem_words):
-                        x[0][-1] = x[1]
+                n_none = elem.count(None)
+
+                encoded_elem_chars = self.encode_chars(elem, self.alphabet, self.params.max_word_lenght)
+                encoded_elem_words = torch.LongTensor(self.encode_text(elem, self.vocabulary)).to(self.device)
+
+                for x in zip(encoded_elem_chars, encoded_elem_words):
+                    x[0][-1] = x[1]
+
+                pred = self.model(encoded_elem_chars.unsqueeze(0))
+                if(n_none > 0):
+                    pred = pred[:,:-n_none]
+                final.append(torch.argmax(pred, -1).tolist()[0])
+
+            
+            final = [c for window in final for c in window]
+            ret = []
+            sentence = []
+            rest = 0
+            for elem in final:
+                sentence.append(self.label_vocabulary.get_key(elem))
+                if(len(sentence) == list_of_length[0]):
+                    ret.append(sentence)
+                    sentence = [] 
+                    list_of_length = list_of_length[1:]
                     
-                    logits = self.model(encoded_elem_chars.unsqueeze(0).to(self.device))
-                    predictions = torch.argmax(logits, -1)
-                    sentence_pred.append([self.label_vocabulary.get_key(i) for i in predictions[0]])
-                reduced_sentence = [parola for finestra in sentence_pred for parola in finestra]
-               
-                ret.append(reduced_sentence[:sentence_length])
-                
-            return ret
+                    if(list_of_length == []):
+                        break
+
+        return ret
