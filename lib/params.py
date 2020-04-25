@@ -1,5 +1,5 @@
 class Params():
-    hidden_dim = 128
+    hidden_dim = 64
     embedding_dim = 50
     char_embedding_dim = 10
     single_char_embedding_dim = 4
@@ -11,8 +11,8 @@ class Params():
     embeddings_path = 'model/glove.6B.50d.txt'
     max_word_lenght = 20
     device = "cuda"
-    window_size = 3
-    window_shift =  2
+    window_size = 7
+    window_shift =  1
     min_freq = 2
     max_freq = 0
     vocabulary_path = 'model/vocabulary.json'
