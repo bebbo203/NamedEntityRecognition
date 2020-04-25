@@ -12,7 +12,7 @@ class Params():
     max_word_lenght = 20
     device = "cuda"
     window_size = 3
-    window_shift =  1
+    window_shift =  2
     min_freq = 2
     max_freq = 0
     vocabulary_path = 'model/vocabulary.json'
