@@ -1,5 +1,5 @@
 class Params():
-    hidden_dim = 512
+    hidden_dim = 256
     embedding_dim = 50
     char_embedding_dim = 10
     single_char_embedding_dim = 4
