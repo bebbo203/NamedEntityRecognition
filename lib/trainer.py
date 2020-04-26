@@ -6,6 +6,7 @@ from collections import Counter
 from tqdm import tqdm
 from . import NERModel
 import time
+from sklearn.metrics import precision_score, recall_score, f1_score
 
 class Trainer():
     """Utility class to train and evaluate a model."""
@@ -72,10 +73,10 @@ class Trainer():
             train_loss += avg_epoch_loss
             print('\t[E: {:2d}] train loss = {:0.4f}'.format(epoch, avg_epoch_loss))
 
-            valid_loss = self.evaluate(valid_dataset)
+            valid_loss, micro, macro, recall, f1 = self.evaluate(valid_dataset)
             torch.save(self.model.state_dict(), "model/inter_weights.pt")
            
-            print('\t[E: {:2d}] valid loss = {:0.4f}'.format(epoch, valid_loss))
+            print('\t[E: {:2d}] valid loss = {:0.4f}\n\t\tmicro_precision = {:0.4f}\n\t\tmacro_precision = {:0.4f}\n\t\trecall = {:0.4f}\n\t\tf1 = {:0.4f}'.format(epoch, valid_loss, micro, macro, recall, f1))
 
             fx = open(output_file, "a+")
             fx.write("%f, %f\n" % (avg_epoch_loss, valid_loss))
@@ -97,17 +98,34 @@ class Trainer():
        
         self.model.eval()
         with torch.no_grad():
+            all_predictions = []
+            all_labels = []
+            valid_loss = 0
             for sample in valid_dataset:
-                inputs = sample['inputs']
-                labels = sample['outputs']
+                indexed_in = sample["inputs"]
+                indexed_labels = sample["outputs"]
+                predictions = self.model(indexed_in)
 
-                predictions = self.model(inputs)
-                predictions = predictions.view(-1, predictions.shape[-1])
-                labels = labels.view(-1)
-                sample_loss = self.loss_function(predictions, labels)
-                valid_loss += sample_loss.tolist()
-        
-        return valid_loss / len(valid_dataset)
+                sample_loss = self.loss_function(predictions.view(-1, predictions.shape[-1]), indexed_labels.view(-1))
+                valid_loss += sample_loss
+                predictions = torch.argmax(predictions, -1).view(-1)
+                labels = indexed_labels.view(-1)
+                
+                valid_indices = labels != 0
+                
+                valid_predictions = predictions[valid_indices]
+                valid_labels = labels[valid_indices]
+                
+                all_predictions.extend(valid_predictions.tolist())
+                all_labels.extend(valid_labels.tolist())
+                
+                
+            micro_precision = precision_score(all_labels, all_predictions, average="micro", zero_division=0)
+            macro_precision = precision_score(all_labels, all_predictions, average="macro", zero_division=0)
+            recall = recall_score(all_labels, all_predictions, average='macro')
+            f1 = f1_score(all_labels, all_predictions, average='macro')
+
+        return valid_loss / len(valid_dataset), micro_precision, macro_precision, recall, f1
 
     def predict(self, x):
         self.model.eval()
