@@ -13,4 +13,4 @@ class Params():
     max_freq = 0
     vocabulary_path = 'model/vocabulary.json'
     label_vocabulary_path = 'model/label_vocabulary.json'
-    stopwords_path = "model/stopwords.json"
+    stopwords_path = None
