@@ -18,8 +18,7 @@ class NERModel(nn.Module):
         else:
             self.device = device
 
-        #Da passare a LSTM
-        #self.char_conv = nn.Conv1d(in_channels=params.window_size, out_channels=params.window_size, stride=1, kernel_size=3)
+    
         
         self.char_embedder = nn.Embedding(params.alphabet_size, params.single_char_embedding_dim)
 
@@ -87,4 +86,5 @@ class NERModel(nn.Module):
         
         o = self.dropout(o)
         output = self.classifier(o)
+        
         return output

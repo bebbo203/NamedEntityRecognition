@@ -78,7 +78,6 @@ class NERDataset(Dataset):
                               else l_label_vocabulary["<pad>"] for d in elem]).to(self.device)
             
             self.encoded_data.append({"inputs":encoded_elem_chars.to(self.device), 
-                                      #"inputs":encoded_elem_words,
                                       "outputs":encoded_labels})
             progress_bar.update(1)
         progress_bar.close()

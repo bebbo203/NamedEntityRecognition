@@ -5,7 +5,7 @@ from collections import Counter
 from lib import *
 from lib.gloveparser import GloveParser
 from sklearn.metrics import precision_score, recall_score, f1_score
-
+from sklearn.metrics import confusion_matrix
 import torch
 from tqdm import tqdm
 
@@ -94,26 +94,22 @@ class StudentModel():
         self.model.eval()
         #tokens size: (128, lunghezza frase)
 
-
+        
         #in input alla rete vorrei (batch, window_size, word_length)
 
         #Il problema dovrebbe stare nel fatto che nerdataset ha data che contiene finestre su TUTTE LE FRASI mentre io qui faccio finestre per ogni frase
         #quindi dovrei crearmi le finestre su tutto porco cane
         with torch.no_grad():
             ret = []
-            batch = torch.LongTensor(1, self.params.window_size, self.params.max_word_lenght-1)
             list_of_length = []
-            data = []
+            
             for sentence in tokens:
                 list_of_length.append(len(sentence))
             
             data = self.create_windows_multi(tokens)
 
-            
-           
             final = []
             for i in range(len(data)):
-                # for each window
                 elem = data[i]
                 
                 n_none = elem.count(None)
@@ -123,31 +119,34 @@ class StudentModel():
 
                 for x in zip(encoded_elem_chars, encoded_elem_words):
                     x[0][-1] = x[1]
-
+                
                 pred = self.model(encoded_elem_chars.unsqueeze(0))
+                pred = torch.nn.functional.softmax(pred.squeeze(), dim=1).argmax(dim=1)
+                
+                
                 if(n_none > 0):
-                    pred = pred[:,:-n_none]
-                final.append(torch.argmax(pred, -1).tolist()[0])
+                    pred = pred[:-n_none]
+                    
+
+                final.append(pred)
 
             
-            final = [c for window in final for c in window]
+            final = [c.item() for window in final for c in window]
+            print(final)
             ret = []
             sentence = []
-            rest = 0
-            for elem in final:
+            for i, elem in enumerate(final):
                 sentence.append(self.label_vocabulary.get_key(elem))
                 if(len(sentence) == list_of_length[0]):
                     ret.append(sentence)
                     sentence = [] 
                     list_of_length = list_of_length[1:]
                     
-                    if(list_of_length == []):
+                    if(list_of_length == []):   
                         break
-                    
-        
-
+      
         return ret
-
+        
 
 
 def flat_list(l):
@@ -156,7 +155,9 @@ def flat_list(l):
 
 a = StudentModel("cuda")
 
-f = open("data/dev.tsv")
+
+
+f = open("data/little_dev.tsv")
 pad_idx = a.label_vocabulary["<pad>"]
 
 batch=[]
@@ -173,6 +174,7 @@ labels = []
 
 for line in f.readlines():
     line = line.strip()
+    
     if line.startswith('# '):
         tokens = []
         labels = []
@@ -185,6 +187,7 @@ for line in f.readlines():
         labels.append(label)
 
 
+
 pred_counter = Counter()
 truth_counter = Counter() 
 batch_labels = []
@@ -193,7 +196,7 @@ progress_bar = tqdm(total=len(labels_s), desc='Evaluating')
 for sentence, truth in zip(tokens_s, labels_s):
     batch.append(sentence)
     batch_labels.append(truth)
-    if(len(batch) == 128):
+    if(len(batch) == 256):
         pred = a.predict(batch)
         total_pred.append(pred)
         
@@ -203,7 +206,7 @@ for sentence, truth in zip(tokens_s, labels_s):
                 truth_counter[lt]+=1
         batch = []
         batch_labels = []
-        progress_bar.update(128)
+        progress_bar.update(256)
 progress_bar.close()
 
 pred = a.predict(batch)
@@ -215,22 +218,20 @@ for t, l, p in zip(batch, batch_labels , pred):
 
 
 
+
 print("PRED: " + str(pred_counter))
 print("GOLD: " + str(truth_counter))
 
-flat_predictions_s = []
-i = 0
-for elem in total_pred:
-    for x in elem:
-        for c in x:
-            flat_predictions_s.append(c)
-
+flat_predictions_s = flat_list(flat_list(total_pred))
 flat_labels_s = flat_list(labels_s)
 
 p = precision_score(flat_labels_s, flat_predictions_s, average='macro')
 r = recall_score(flat_labels_s, flat_predictions_s, average='macro')
 f = f1_score(flat_labels_s, flat_predictions_s, average='macro')
+conf = confusion_matrix(flat_labels_s, flat_predictions_s)
 
 print(f'# precision: {p:.4f}')
 print(f'# recall: {r:.4f}')
 print(f'# f1: {f:.4f}')
+
+print(conf)

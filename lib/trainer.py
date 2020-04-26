@@ -111,6 +111,7 @@ class Trainer():
                 indexed_labels = sample["outputs"]
                 predictions = self.model(indexed_in)
 
+                
                 sample_loss = self.loss_function(predictions.view(-1, predictions.shape[-1]), indexed_labels.view(-1))
                 valid_loss += sample_loss
                 predictions = torch.argmax(predictions, -1).view(-1)
@@ -119,12 +120,14 @@ class Trainer():
                 valid_indices = labels != 0
                 
                 valid_predictions = predictions[valid_indices]
+                
                 valid_labels = labels[valid_indices]
                 
                 all_predictions.extend(valid_predictions.tolist())
                 all_labels.extend(valid_labels.tolist())
-                
-                
+
+            
+            
             micro_precision = sk_precision(all_labels, all_predictions, average="micro", zero_division=0)
             macro_precision = sk_precision(all_labels, all_predictions, average="macro", zero_division=0)
             recall = recall_score(all_labels, all_predictions, average='macro')

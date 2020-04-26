@@ -145,7 +145,6 @@ class StudentModel(Model):
                     ret.append(sentence)
                     sentence = [] 
                     list_of_length = list_of_length[1:]
-                    
                     if(list_of_length == []):
                         break
 
