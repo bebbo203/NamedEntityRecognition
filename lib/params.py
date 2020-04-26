@@ -14,3 +14,4 @@ class Params():
     vocabulary_path = 'model/vocabulary.json'
     label_vocabulary_path = 'model/label_vocabulary.json'
     stopwords_path = None
+    #Comment
