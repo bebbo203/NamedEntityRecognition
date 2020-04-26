@@ -20,7 +20,7 @@ class NERDataset(Dataset):
         self.device = device
         with open(input_file) as reader:
             sentences = conllu_parse(reader.read())
-        self.data = self.create_windows(sentences)
+        self.data = self.get_windows(sentences)
         self.encoded_data = None
         self.alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 -,;.!?:’’’/\|_@#$%ˆ&*˜‘+-=()[]{}"
         self.max_word_length = max_word_length
@@ -40,12 +40,9 @@ class NERDataset(Dataset):
         return self.data[idx]
 
     #Sliding windows mechanism
-    def create_windows(self, sentences):
+    def get_windows(self, sentences):
         data = []
         for sentence in sentences:
-          if self.lowercase:
-              for d in sentence:
-                  d["form"] = d["form"].lower()
           for i in range(0, len(sentence), self.window_shift):
             window = sentence[i:i+self.window_size]
             if len(window) < self.window_size:
@@ -66,8 +63,6 @@ class NERDataset(Dataset):
             encoded_elem_words = torch.LongTensor(self.encode_text(elem, l_vocabulary)).to(self.device)
             
             
-
-            #MMMMHHHHHH
             for x in zip(encoded_elem_chars, encoded_elem_words):
                 x[0][-1] = x[1]
             
@@ -112,14 +107,6 @@ class NERDataset(Dataset):
     @staticmethod
     def encode_text(sentence:list, 
                 l_vocabulary):
-        """
-        Args:
-            sentences (list): list of OrderedDict, each carrying the information about
-            one token.
-            l_vocabulary (Vocab): vocabulary with mappings from words to indices and viceversa.
-        Return:
-            The method returns a list of indices corresponding to the input tokens.
-        """
         indices = list()
         for w in sentence:
             if w is None:
@@ -133,16 +120,7 @@ class NERDataset(Dataset):
     @staticmethod
     def decode_output(outputs:torch.Tensor,
                     l_label_vocabulary):
-        """
-        Args:
-            outputs (Tensor): a Tensor with shape (batch_size, max_len, label_vocab_size)
-                containing the logits outputed by the neural network.
-            l_label_vocabulary (Vocab): is the vocabulary containing the mapping from
-            a string label to its corresponding index and vice versa
-        Output:
-            The method returns a list of batch_size length where each element is a list
-            of labels, one for each input token.
-        """
+
         max_indices = torch.argmax(outputs, -1).tolist() # shape = (batch_size, max_len)
         predictions = list()
         for indices in max_indices:

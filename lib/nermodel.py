@@ -21,12 +21,10 @@ class NERModel(nn.Module):
     
         
         self.char_embedder = nn.Embedding(params.alphabet_size, params.single_char_embedding_dim)
+        
 
-
-        self.char_lstm = nn.LSTM(params.single_char_embedding_dim, params.char_embedding_dim, 
-                            bidirectional=params.bidirectional,
-                            num_layers=params.num_layers, 
-                            dropout = params.dropout if params.num_layers > 1 else 0)
+        self.conv = nn.Conv1d(in_channels=params.max_word_lenght - 3, out_channels=1, kernel_size=5)
+        self.max_pool = nn.MaxPool1d(kernel_size = 2)
         
         
 
@@ -54,25 +52,30 @@ class NERModel(nn.Module):
 
         #u = (batch_size, window_size, word_size - 1, single_char_embedding_dim)
         u = self.char_embedder(chars)
-       
 
-    
+
+
         char_embedding = torch.Tensor().to(self.device)
+
         
         for i in range(self.params.window_size):
             # Need to change dimensions since the lstm level needs the input as (n_timesteps, batch, n_features)
-            #w = (word_size - 1, batch_size, single_char_embedding_dim)
-            w = u[:, i, : , :].reshape(u.size()[2], u.size()[0], u.size()[3])
+            #w = (batch_size, max_word_length, single_char_embedding_dim)
+            w = u[:, i, : , :]
+            #print("W size")
+            #print(w.size())
+           
+            #out = (batch_size, out_channels, 3?)
+            out = self.conv(w)
+            #print("Conv output size")            
+            #print(out.size())
+
+            #out  = (batch_size, char_embedding_dim, 23/pool_kernel)
+            out = self.max_pool(out)
+            #print("pool size")
+            #print(out.size())
             
-            #o = (1, batch_size, char_embedding_dim*2?)
-            #h = (num_layers * 2 (if bidirectional), batch_size, char_embedding_dim)
-            o, (h, c) = self.char_lstm(w)
- 
-            h = self.dropout(h[-1])
-            #(batch_size, 1, char_embedding_dim)
-            h = h.view(w.size()[1], 1, self.params.char_embedding_dim)
-            #(batch_size, window_size, char_embedding_dim)
-            char_embedding = torch.cat((char_embedding, h), dim=1)
+            char_embedding = torch.cat((char_embedding, out), dim=1)
       
        
         embeddings = self.word_embedding(word)
