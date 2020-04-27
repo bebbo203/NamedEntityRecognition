@@ -66,7 +66,6 @@ class NERDataset(Dataset):
             for x in zip(encoded_elem_chars, encoded_elem_words):
                 x[0][-1] = x[1]
             
-            encoded_elem_chars.requires_grad = False
 
             # for each element d in the elem window (d is a dictionary with the various fields from the CoNLL line) 
             encoded_labels = torch.LongTensor([l_label_vocabulary[d["lemma"]] if d is not None 
@@ -83,18 +82,19 @@ class NERDataset(Dataset):
         window_idx = []
         for w in sentence:
             word_idx = []
-            if(w is not None and len(w["form"]) <= word_length - 1):
+            if(w is not None ):
                 word = w["form"]
                 for c in word:
-                    #0 is NotFound, 1 is padding
-                    word_idx.append(alphabet.find(c)+2)
+                    #0 is Padding or not found
+                    if(len(word_idx) < word_length):
+                        word_idx.append(alphabet.find(c)+1)
+                    else:
+                        break
             else:
-                word_idx.append(1)
+                word_idx.append(0)
             
-            #Every word is padded
-            
-            while(len(word_idx) < (word_length - 1)):
-                word_idx.append(1)
+            while(len(word_idx) < word_length+1):
+                word_idx.append(0)
 
             window_idx.append(torch.FloatTensor(word_idx))
         

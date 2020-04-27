@@ -23,7 +23,7 @@ class NERModel(nn.Module):
         self.char_embedder = nn.Embedding(params.alphabet_size, params.single_char_embedding_dim)
         
 
-        self.conv1 = nn.Conv1d(in_channels=params.max_word_lenght - 3, out_channels=32, kernel_size=4, padding=1)
+        self.conv1 = nn.Conv1d(in_channels=params.max_word_lenght, out_channels=32, kernel_size=4, padding=1)
         self.conv2 = nn.Conv1d(in_channels=32, out_channels = 16, kernel_size = 3 )
         self.conv3 = nn.Conv1d(in_channels=16, out_channels = 1, kernel_size = 2 )
       
@@ -51,16 +51,16 @@ class NERModel(nn.Module):
 
         
         word = x[:, :, -1].type(torch.LongTensor).to(self.device)
-        chars = x[:, :, :-2].type(torch.LongTensor).to(self.device)
+        chars = x[:, :, :-1].type(torch.LongTensor).to(self.device)
+        
+        
 
         #u = (batch_size, window_size, word_size - 1, single_char_embedding_dim)
         u = self.char_embedder(chars)
-
+        
 
 
         char_embedding = torch.Tensor().to(self.device)
-
-        
         for i in range(self.params.window_size):
             # Need to change dimensions since the lstm level needs the input as (n_timesteps, batch, n_features)
             #w = (batch_size, max_word_length, single_char_embedding_dim)
