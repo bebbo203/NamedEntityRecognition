@@ -1,6 +1,6 @@
 class Params():
     hidden_dim = 256
-    embedding_dim = 100
+    embedding_dim = 300
     char_embedding_dim = 10
     single_char_embedding_dim = 25
     alphabet_size = 96
