@@ -9,7 +9,7 @@ class Params():
     dropout = 0.4
     embeddings_processed_weights = 'model/embeddings_weights.json'
     #embeddings_path = 'model/glove.6B.50d.txt'
-    embedding_path = None
+    embeddings_path = None
     max_word_lenght = 15
     device = "cuda"
     window_size = 50
