@@ -20,7 +20,7 @@ class NERModel(nn.Module):
 
     
         
-        self.char_embedder = nn.Embedding(params.alphabet_size, params.single_char_embedding_dim)
+        self.char_embedder = nn.Embedding(params.alphabet_size, params.single_char_embedding_dim, padding_idx=0)
         
 
         self.conv1 = nn.Conv1d(in_channels=params.max_word_lenght, out_channels=32, kernel_size=4, padding=1)
@@ -28,14 +28,9 @@ class NERModel(nn.Module):
         self.conv3 = nn.Conv1d(in_channels=16, out_channels = 1, kernel_size = 2 )
       
         self.max_pool = nn.MaxPool1d(kernel_size = 2)
-        
-        
-
-
+           
         self.word_embedding = nn.Embedding(vocab_size, params.embedding_dim)
         
-
-
         self.lstm = nn.LSTM(params.embedding_dim + params.char_embedding_dim, params.hidden_dim, 
                             bidirectional=params.bidirectional,
                             num_layers=params.num_layers, 
