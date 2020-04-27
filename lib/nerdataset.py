@@ -22,7 +22,7 @@ class NERDataset(Dataset):
             sentences = conllu_parse(reader.read())
         self.data = self.get_windows(sentences)
         self.encoded_data = None
-        self.alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 -,;.!?:’’’/\|_@#$%ˆ&*˜‘+-=()[]{}"
+        self.alphabet = "abcdefghijklmnopqrstuvwxyz0123456789-,;.!?:'/\|_@#$%ˆ&*˜‘+-=()[]{}"
         self.max_word_length = max_word_length
     
     def __len__(self):
