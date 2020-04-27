@@ -14,7 +14,7 @@ class Params():
     device = "cuda"
     window_size = 50
     window_shift =  50
-    min_freq = 0
+    min_freq = 5
     max_freq = 0
     vocabulary_path = 'model/vocabulary.json'
     label_vocabulary_path = 'model/label_vocabulary.json'
