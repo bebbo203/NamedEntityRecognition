@@ -73,7 +73,7 @@ def compute_precision(model:nn.Module, l_dataset:DataLoader, l_label_vocab):
             "conf":conf}
 
 
-
+'''
 training_file = "data/train.tsv"
 test_file = "data/test.tsv"
 dev_file = "data/dev.tsv"
@@ -81,7 +81,7 @@ dev_file = "data/dev.tsv"
 training_file = "data/little_train.tsv"
 test_file = "data/little_test.tsv"
 dev_file = "data/little_dev.tsv"
-'''
+
 
 params = Params()
 window_size = params.window_size
@@ -151,6 +151,9 @@ if(params.embeddings_path != None):
                 embeddings_weights = torch.Tensor(data)
         print("Embedding weights loaded!")
 
+char_embeddings_weights = np.zeros([params.alphabet_size, params.single_char_embedding_dim])
+for i in range(params.alphabet_size):
+    char_embeddings_weights[i] = np.random.uniform(-0.5, 0.5)
 
 
 
@@ -172,6 +175,8 @@ print("Loading the model")
 nermodel = NERModel(len(vocabulary), len(label_vocabulary), params)
 if(params.embeddings_path != None):
     nermodel.word_embedding.weight.data.copy_(torch.Tensor(embeddings_weights))
+
+nermodel.char_embedder.weight.data.copy_(torch.Tensor(char_embeddings_weights))
 
 if(os.path.exists("model/inter_weights.pt")):
     nermodel.load_state_dict(torch.load("model/inter_weights.pt"))

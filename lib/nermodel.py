@@ -23,11 +23,12 @@ class NERModel(nn.Module):
         self.char_embedder = nn.Embedding(params.alphabet_size, params.single_char_embedding_dim, padding_idx=0)
         
 
-        self.conv1 = nn.Conv1d(in_channels=params.max_word_lenght, out_channels=32, kernel_size=4, padding=1)
-        self.conv2 = nn.Conv1d(in_channels=32, out_channels = 16, kernel_size = 3 )
-        self.conv3 = nn.Conv1d(in_channels=16, out_channels = 1, kernel_size = 2 )
+        self.conv1 = nn.Conv1d(in_channels=params.max_word_lenght, out_channels=8, kernel_size=3, padding=1)
+        self.conv2 = nn.Conv1d(in_channels=8, out_channels = 16, kernel_size = 3 )
+        self.conv3 = nn.Conv1d(in_channels=16, out_channels = 32, kernel_size = 3 )
       
         self.max_pool = nn.MaxPool1d(kernel_size = 2)
+        self.max_pool2 = nn.MaxPool1d(kernel_size = 3)
            
         self.word_embedding = nn.Embedding(vocab_size, params.embedding_dim)
         
@@ -41,7 +42,8 @@ class NERModel(nn.Module):
         self.dropout = nn.Dropout(params.dropout)
         self.classifier = nn.Linear(lstm_output_dim, num_classes)
 
-    
+ 
+
     def forward(self, x):
 
         
@@ -64,15 +66,26 @@ class NERModel(nn.Module):
             #print(w.size())
            
             #out = (batch_size, out_channels, 3?)
-            out = self.conv1(w)
-            out = self.conv2(out)
-            out = self.conv3(out)
+            out = self.max_pool(self.conv1(w))
+           # print("Conv1 ")
+            #print(out.size())
+        
+            out = self.max_pool(self.conv2(out))
+            #print("Conv2 ")
+           # print(out.size())
             
+            out = self.max_pool(self.conv3(out))
+            #print("Conv3 ")
+            #print(out.size())
+            
+            out = out.reshape(out.size()[0], -1).view(out.size()[0], 1, -1)
+            #print(" Flatten")
+            #print(out.size())
             #print("Conv output size")            
             #print(out.size())
 
             #out  = (batch_size, char_embedding_dim, 23/pool_kernel)
-            out = self.max_pool(out)
+            out = self.max_pool2(out)
             #print("pool size")
             #print(out.size())
             
