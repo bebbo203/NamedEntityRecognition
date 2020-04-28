@@ -82,12 +82,12 @@ class NERDataset(Dataset):
         window_idx = []
         for w in sentence:
             word_idx = []
-            if(w is not None ):
+             if(w is not None ):
                 word = w["form"]
                 for c in word:
                     #0 is Padding or not found
                     if(len(word_idx) < word_length):
-                        word_idx.append(alphabet.find(c)+1)
+                        word_idx.append(alphabet.find(c.lower())+1)
                     else:
                         break
             else:
